@@ -68,6 +68,25 @@ header h1{font-size:24px;font-weight:800}header p{opacity:.8;font-size:14px;marg
 .sv{width:100%;border:0;background:var(--c);color:#fff;padding:15px;border-radius:14px;font-weight:800;position:sticky;bottom:12px}
 .ex{position:fixed;top:10px;inset-inline-start:10px;z-index:3}
 #toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#14201F;color:#fff;padding:12px 20px;border-radius:99px;z-index:60;display:none}
+/* شبكة منتجات بأسلوب تطبيقات التوصيل: عمودين على الموبايل */
+#grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:4px 12px;max-width:1000px}
+@media(min-width:640px){#grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:4px 16px}}
+@media(min-width:960px){#grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.p{border-radius:16px;box-shadow:0 1px 3px #0000000d}
+.p .im{font-size:40px}
+.p .b{padding:10px 10px 12px;gap:3px}
+.p h3{font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.p small{font-size:12px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.p .tag{font-size:11px;padding:2px 8px}
+.p .sv{top:8px;bottom:auto;inset-inline-end:8px}
+.pr{padding-top:6px;justify-content:flex-start;flex-wrap:wrap;gap:2px 6px}
+.pr b{font-size:15px}.pr s{margin:0}
+.ct{position:absolute;bottom:8px;inset-inline-end:8px}
+.plus{width:36px;height:36px;border-radius:50%;border:0;background:#fff;color:var(--c);font-size:24px;font-weight:700;line-height:1;box-shadow:0 2px 10px #0003;display:grid;place-items:center;padding:0}
+.ct .q{background:#fff;box-shadow:0 2px 10px #0003;gap:6px;padding:2px;border-radius:99px}
+.ct .q button{width:30px;height:30px;border-radius:50%;font-size:17px}
+.ct .q b{font-size:14px;min-width:14px;text-align:center}
+.na{background:#ffffffe6;color:var(--mut);font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px}
 </style>
 </head>
 <body>
@@ -128,11 +147,9 @@ function paint(){const s=D.settings;
  $('#cats').innerHTML=[{id:'all',name:'الكل'},...D.categories].map(c=>`<button class="${c.id==cat?'on':''}" onclick="cat='${esc(c.id)}';paint()">${esc(c.name)}</button>`).join('');
  const ps=D.products.filter(p=>cat=='all'||p.category==cat);
  $('#grid').innerHTML=ps.map(p=>{const a=ok(p.available),q=cart[p.id]||0,d=+p.discount>0;
-  return `<div class="p"><div class="im" style="${p.image?`background-image:url('${esc(p.image)}')`:''}">${p.image?'':emo(p)}${d?`<span class="tag">-${+p.discount}%</span>`:''}</div>
+  return `<div class="p"><div class="im" style="${p.image?`background-image:url('${esc(p.image)}')`:''}">${p.image?'':emo(p)}${d?`<span class="tag">-${+p.discount}%</span>`:''}<div class="ct">${!a?'<span class="na">غير متاح</span>':q?`<div class="q"><button onclick="ch('${p.id}',1)">+</button><b>${q}</b><button onclick="ch('${p.id}',-1)">−</button></div>`:`<button class="plus" aria-label="أضف" onclick="ch('${p.id}',1)">+</button>`}</div></div>
   <div class="b"><h3>${esc(p.name)}</h3><small>${esc(p.desc)}</small>
-  <div class="pr"><div><b>${fp(p)}</b>${d?`<s>${p.price}</s>`:''}</div>
-  ${!a?'<small>غير متاح</small>':q?`<div class="q"><button onclick="ch('${p.id}',1)">+</button><b>${q}</b><button onclick="ch('${p.id}',-1)">−</button></div>`:`<button class="add" onclick="ch('${p.id}',1)">أضف</button>`}
-  </div></div></div>`}).join('')||'<p style="padding:30px;text-align:center;color:var(--mut)">لا توجد منتجات في هذا القسم</p>';
+  <div class="pr"><b>${money(fp(p))}</b>${d?`<s>${p.price}</s>`:''}</div></div></div>`}).join('')||'<p style="padding:30px;text-align:center;color:var(--mut)">لا توجد منتجات في هذا القسم</p>';
  totals();offersShow()}
 function offersShow(){let h=[];try{h=JSON.parse(sessionStorage.h||'[]')}catch(e){}
  $('#pop').innerHTML=D.offers.filter(o=>ok(o.active)&&o.text&&!h.includes(String(o.id))).map(o=>`<div class="n"><span>🎁 ${esc(o.text)}</span><button onclick="hide('${o.id}')">✕</button></div>`).join('')}
@@ -169,7 +186,7 @@ const F={categories:[['name','اسم القسم']],
  offers:[['text','نص العرض (يظهر كإشعار)'],['active','ظاهر للعملاء','check']]};
 const NEW={categories:{name:''},products:{name:'',price:0,discount:0,category:'',desc:'',image:'',available:true},offers:{text:'',active:true}};
 const ALLTABS={settings:'الإعدادات',categories:'الأقسام',products:'المنتجات',offers:'العروض',orders:'الطلبات'};
-const STAFF_TABS=['products','categories','orders']; // التبويبات المسموحة للموظف
+const STAFF_TABS=['products','categories','offers','orders']; // التبويبات المسموحة للموظف
 let TABS=ALLTABS;
 $('#logo').onclick=()=>{if(++taps>=5){taps=0;enter()}};
 if(location.hash=='#admin')setTimeout(enter,400);
